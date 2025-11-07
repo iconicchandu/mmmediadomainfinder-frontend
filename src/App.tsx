@@ -23,7 +23,7 @@ function App() {
     setResults(null)
 
     try {
-      const response = await axios.get<DomainResult>("https://domain-finder-backend-lgpk.onrender.com/api/domains", {
+      const response = await axios.get<DomainResult>("https://mmmediadomainfinder.onrender.com/api/domains", {
         params: { keyword, tld }
       })
       setResults(response.data)
