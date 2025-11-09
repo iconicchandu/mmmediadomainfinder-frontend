@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import axios from 'axios'
+import { AlertCircle } from 'lucide-react'
 import DomainSearch from './components/DomainSearch'
 import DomainResults from './components/DomainResults'
 import LoadingSpinner from './components/LoadingSpinner'
@@ -9,22 +10,24 @@ interface DomainResult {
   tld: string
   totalGenerated: number
   available: number
-  domains: string[]
+  domains: string[] | Array<{ domain: string; available: boolean }>
 }
 
 function App() {
   const [results, setResults] = useState<DomainResult | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [requestedCount, setRequestedCount] = useState<number>(0)
 
-  const handleSearch = async (keyword: string, tld: string) => {
+  const handleSearch = async (keyword: string, tld: string, count: number) => {
     setLoading(true)
     setError(null)
     setResults(null)
+    setRequestedCount(count)
 
     try {
       const response = await axios.get<DomainResult>("https://mmmediadomainfinder.onrender.com/api/domains", {
-        params: { keyword, tld }
+        params: { keyword, tld, count }
       })
       setResults(response.data)
     } catch (err: any) {
@@ -57,9 +60,7 @@ function App() {
               <p className="text-white/90 text-sm md:text-base font-light max-w-2xl mx-auto drop-shadow-lg mt-2">
                 Generate professional, brandable domain names instantly
               </p>
-              <p className="text-white/70 text-xs md:text-sm font-light max-w-xl mx-auto mt-1 drop-shadow">
-                Brand Name Generator + Domain Finder
-              </p>
+              
               <div className="mt-4 flex justify-center gap-2">
                 <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
                 <div className="w-2 h-2 bg-white rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
@@ -80,9 +81,7 @@ function App() {
                 <div className="glass-strong border-2 border-red-400/50 rounded-xl p-4">
                   <div className="flex items-start">
                     <div className="flex-shrink-0">
-                      <svg className="h-5 w-5 text-red-300" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                      </svg>
+                      <AlertCircle className="h-5 w-5 text-red-300" />
                     </div>
                     <div className="ml-2">
                       <h3 className="text-base font-bold text-white mb-1">Error</h3>
@@ -99,7 +98,7 @@ function App() {
             )}
 
             {results && !loading && (
-              <DomainResults results={results} />
+              <DomainResults results={results} requestedCount={requestedCount} />
             )}
           </div>
         </div>
